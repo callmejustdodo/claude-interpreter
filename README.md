@@ -28,10 +28,23 @@ Claude가 영어로 작업/답변
 2. **TIOCSTI** — `/dev/tty`에 키 입력 주입 (macOS 지원)
 3. **클립보드 폴백** — 자동 입력이 불가능하면 번역문을 클립보드에 복사하고 안내 메시지 표시
 
-## 사용
+## 설치
+
+Claude Code 세션 안에서:
+
+```
+/plugin marketplace add callmejustdodo/claude-interpreter
+/plugin install claude-interpreter@claude-interpreter
+```
+
+업데이트는 `/plugin marketplace update claude-interpreter`.
+
+**요구사항**: `python3`, `claude` CLI. 자동 재입력은 tmux 안이거나 TIOCSTI를 지원하는 tty(macOS)가 필요하다. 최신 Linux 커널은 TIOCSTI가 기본 비활성이라 tmux 사용을 권장하며, 클립보드 폴백(`pbcopy`)은 macOS 전용이다.
+
+### 로컬 개발
 
 ```bash
-claude --plugin-dir /Users/dohyeonpark/Codes/claude-interpreter
+claude --plugin-dir /path/to/claude-interpreter
 ```
 
 플러그인 파일 수정 후에는 세션 안에서 `/reload-plugins`.
