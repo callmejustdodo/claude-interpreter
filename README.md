@@ -2,8 +2,62 @@
 
 Claude Code용 한국어 ↔ 영어 통역 플러그인.
 
+> **English**: A Korean ↔ English interpreter layer for Claude Code. You type in Korean; the prompt is translated to English by Haiku and re-submitted so that **Korean never enters the model context**; Claude works and answers in English; the answer is translated back to Korean and shown at the end of the turn.
+
 - **입력**: 한국어 프롬프트 → Haiku가 영어로 번역 → 영어 프롬프트만 Claude에게 전달 (한국어 원문은 컨텍스트에 남지 않음)
 - **출력**: Claude의 영어 답변 → Haiku가 한국어로 번역 → 턴 종료 시 화면에 표시
+
+한국어로 편하게 쓰면서도, 모델 컨텍스트는 영어로만 유지하고 싶을 때 사용한다.
+
+## 데모
+
+실제 세션 화면:
+
+```
+❯ 파이썬에서 리스트를 뒤집는 방법을 한 줄로 알려줘
+
+⏺ UserPromptSubmit operation blocked by hook:
+  🌐 한국어 프롬프트를 지우고 영어 번역으로 다시 제출합니다:
+  Show me how to reverse a list in Python in one line.
+
+❯ Show me how to reverse a list in Python in one line.      ← 자동 재입력
+
+⏺ my_list[::-1] — that's the idiomatic one-liner:
+  reversed_list = my_list[::-1]
+  ...
+
+  ⎿ Stop says: 🌐 한국어 번역
+     `my_list[::-1]` — 이것이 관례적인 한 줄짜리 코드입니다:
+     ...
+```
+
+## 설치
+
+Claude Code 세션 안에서:
+
+```
+/plugin marketplace add callmejustdodo/claude-interpreter
+/plugin install claude-interpreter@claude-interpreter
+```
+
+업데이트는 `/plugin marketplace update claude-interpreter`.
+
+**요구사항**: `python3`, `claude` CLI. 자동 재입력은 tmux 안이거나 TIOCSTI를 지원하는 tty(macOS)가 필요하다. 최신 Linux 커널은 TIOCSTI가 기본 비활성이라 tmux 사용을 권장하며, 클립보드 폴백(`pbcopy`)은 macOS 전용이다.
+
+### 제거
+
+```
+/plugin uninstall claude-interpreter@claude-interpreter
+/plugin marketplace remove claude-interpreter
+```
+
+### 로컬 개발
+
+```bash
+claude --plugin-dir /path/to/claude-interpreter
+```
+
+플러그인 파일 수정 후에는 세션 안에서 `/reload-plugins`.
 
 ## 동작 방식
 
@@ -28,27 +82,6 @@ Claude가 영어로 작업/답변
 2. **TIOCSTI** — `/dev/tty`에 키 입력 주입 (macOS 지원)
 3. **클립보드 폴백** — 자동 입력이 불가능하면 번역문을 클립보드에 복사하고 안내 메시지 표시
 
-## 설치
-
-Claude Code 세션 안에서:
-
-```
-/plugin marketplace add callmejustdodo/claude-interpreter
-/plugin install claude-interpreter@claude-interpreter
-```
-
-업데이트는 `/plugin marketplace update claude-interpreter`.
-
-**요구사항**: `python3`, `claude` CLI. 자동 재입력은 tmux 안이거나 TIOCSTI를 지원하는 tty(macOS)가 필요하다. 최신 Linux 커널은 TIOCSTI가 기본 비활성이라 tmux 사용을 권장하며, 클립보드 폴백(`pbcopy`)은 macOS 전용이다.
-
-### 로컬 개발
-
-```bash
-claude --plugin-dir /path/to/claude-interpreter
-```
-
-플러그인 파일 수정 후에는 세션 안에서 `/reload-plugins`.
-
 ## 설정 (환경변수)
 
 | 변수 | 기본값 | 설명 |
@@ -69,7 +102,9 @@ claude --plugin-dir /path/to/claude-interpreter
 
 ```
 claude-interpreter/
-├── .claude-plugin/plugin.json      # 플러그인 매니페스트
+├── .claude-plugin/
+│   ├── plugin.json                 # 플러그인 매니페스트
+│   └── marketplace.json            # 단일 리포 마켓플레이스 (source: "./")
 ├── hooks/hooks.json                # UserPromptSubmit + Stop 훅 등록
 └── scripts/
     ├── interpreter_common.py       # 번역(claude -p), 한글 감지, 세션 상태
