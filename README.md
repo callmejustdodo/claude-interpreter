@@ -42,7 +42,7 @@ Claude Code 세션 안에서:
 
 업데이트는 `/plugin marketplace update claude-interpreter`.
 
-**요구사항**: `python3`, `claude` CLI. 자동 재입력은 tmux 안이거나 TIOCSTI를 지원하는 tty(macOS)가 필요하다. 최신 Linux 커널은 TIOCSTI가 기본 비활성이라 tmux 사용을 권장하며, 클립보드 폴백(`pbcopy`)은 macOS 전용이다.
+**요구사항**: `python3`, `claude` CLI. 자동 재입력은 cmux/tmux 안이거나 macOS(osascript)여야 한다. 그 외 Linux 환경은 최신 커널에서 TIOCSTI가 기본 비활성이라 tmux 사용을 권장한다.
 
 ### 제거
 
@@ -78,9 +78,11 @@ Claude가 영어로 작업/답변
 
 자동 재입력은 환경에 따라 순서대로 시도한다:
 
-1. **tmux** — `paste-buffer`(bracketed paste) + Enter
-2. **TIOCSTI** — `/dev/tty`에 키 입력 주입 (macOS 지원)
-3. **클립보드 폴백** — 자동 입력이 불가능하면 번역문을 클립보드에 복사하고 안내 메시지 표시
+1. **cmux** — cmux CLI의 `send`/`send-key`로 호출자 workspace에 직접 입력
+2. **tmux** — `paste-buffer`(bracketed paste) + Enter
+3. **TIOCSTI** — `/dev/tty`에 키 입력 주입 (controlling tty가 있는 환경)
+4. **osascript** — macOS System Events로 클립보드 자동 붙여넣기 + Enter (클립보드는 원래 내용으로 복원, 접근성 권한 필요)
+5. **클립보드 폴백** — 위가 모두 불가능하면 번역문을 클립보드에 복사하고 안내 메시지 표시
 
 ## 설정 (환경변수)
 

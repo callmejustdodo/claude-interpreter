@@ -3,5 +3,6 @@
   "description": "Korean <-> English interpreter layer for Claude Code: translates Korean prompts to English on the way in, and translates English responses back to Korean on the way out.",
   "author": {
     "name": "Dohyeon Park"
-  }
+  },
+  "license": "MIT"
 }

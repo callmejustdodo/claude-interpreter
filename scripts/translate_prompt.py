@@ -26,6 +26,9 @@ INJECTOR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inject_inpu
 
 
 def pick_injection_method():
+    cmux_cli = os.environ.get("CMUX_BUNDLED_CLI_PATH")
+    if cmux_cli and os.path.exists(cmux_cli):
+        return "cmux"
     if os.environ.get("TMUX") and os.environ.get("TMUX_PANE") and shutil.which("tmux"):
         return "tmux"
     try:
@@ -37,6 +40,8 @@ def pick_injection_method():
             return "tiocsti"
     except OSError:
         pass
+    if sys.platform == "darwin" and shutil.which("osascript"):
+        return "osascript"
     return None
 
 
