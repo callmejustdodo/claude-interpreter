@@ -127,6 +127,6 @@ tongyeok/
 └── scripts/
     ├── interpreter_common.py       # 번역(claude -p), 한글 감지, 세션 상태
     ├── translate_prompt.py         # 입력: 한→영 번역 + block + 재입력
-    ├── inject_input.py             # 입력창 자동 타이핑 (tmux / TIOCSTI)
+    ├── inject_input.py             # 입력창 자동 타이핑 (cmux / tmux / TIOCSTI / osascript)
     └── translate_response.py       # 출력: 영→한 번역 표시
 ```
