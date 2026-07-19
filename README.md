@@ -33,13 +33,29 @@ Claude Code용 한국어 ↔ 영어 통역 플러그인.
 
 ## 설치
 
-Claude Code 세션 안에서:
+**방법 1 — 터미널에서 한 줄:**
+
+```bash
+claude plugin marketplace add callmejustdodo/claude-interpreter && claude plugin install claude-interpreter@claude-interpreter
+```
+
+**방법 2 — 이 프롬프트를 Claude Code에 그대로 붙여넣기:**
+
+```
+claude-interpreter 플러그인을 설치해줘.
+`claude plugin marketplace add callmejustdodo/claude-interpreter` 와
+`claude plugin install claude-interpreter@claude-interpreter` 를 실행하고,
+끝나면 나한테 /reload-plugins 를 실행하라고 안내해줘.
+```
+
+**방법 3 — 슬래시 명령으로 직접:**
 
 ```
 /plugin marketplace add callmejustdodo/claude-interpreter
 /plugin install claude-interpreter@claude-interpreter
 ```
 
+어느 방법이든 설치 후 `/reload-plugins`(또는 새 세션)부터 적용된다.
 업데이트는 `/plugin marketplace update claude-interpreter`.
 
 **요구사항**: `python3`, `claude` CLI. 자동 재입력은 cmux/tmux 안이거나 macOS(osascript)여야 한다. 그 외 Linux 환경은 최신 커널에서 TIOCSTI가 기본 비활성이라 tmux 사용을 권장한다.
