@@ -1,4 +1,4 @@
-"""Shared helpers for the claude-interpreter hooks."""
+"""Shared helpers for the tongyeok hooks."""
 
 import os
 import re
@@ -6,15 +6,15 @@ import subprocess
 import tempfile
 
 # Set on child `claude -p` calls so our own hooks never fire recursively.
-GUARD_ENV = "CLAUDE_INTERPRETER_ACTIVE"
+GUARD_ENV = "TONGYEOK_ACTIVE"
 
-MODEL = os.environ.get("CLAUDE_INTERPRETER_MODEL", "claude-haiku-4-5-20251001")
+MODEL = os.environ.get("TONGYEOK_MODEL", "claude-haiku-4-5-20251001")
 
 # "replace": block the Korean prompt (erasing it from context) and re-inject
 #            the English translation into the input box.
 # "context": keep the Korean prompt and inject the English translation as
 #            additionalContext (Korean stays in context; no injection hacks).
-MODE = os.environ.get("CLAUDE_INTERPRETER_MODE", "replace")
+MODE = os.environ.get("TONGYEOK_MODE", "replace")
 
 HANGUL_RE = re.compile(r"[가-힣ᄀ-ᇿ㄰-㆏]")
 
@@ -85,7 +85,7 @@ def translate(text, instruction, timeout=90):
 
 
 def state_dir():
-    d = os.path.join(tempfile.gettempdir(), "claude-interpreter")
+    d = os.path.join(tempfile.gettempdir(), "tongyeok")
     os.makedirs(d, exist_ok=True)
     return d
 

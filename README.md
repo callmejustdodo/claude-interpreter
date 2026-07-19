@@ -1,4 +1,4 @@
-# claude-interpreter
+# tongyeok
 
 Claude Code용 한국어 ↔ 영어 통역 플러그인.
 
@@ -36,41 +36,41 @@ Claude Code용 한국어 ↔ 영어 통역 플러그인.
 **방법 1 — 터미널에서 한 줄:**
 
 ```bash
-claude plugin marketplace add callmejustdodo/claude-interpreter && claude plugin install claude-interpreter@claude-interpreter
+claude plugin marketplace add callmejustdodo/tongyeok && claude plugin install tongyeok@tongyeok
 ```
 
 **방법 2 — 이 프롬프트를 Claude Code에 그대로 붙여넣기:**
 
 ```
-claude-interpreter 플러그인을 설치해줘.
-`claude plugin marketplace add callmejustdodo/claude-interpreter` 와
-`claude plugin install claude-interpreter@claude-interpreter` 를 실행하고,
+tongyeok 플러그인을 설치해줘.
+`claude plugin marketplace add callmejustdodo/tongyeok` 와
+`claude plugin install tongyeok@tongyeok` 를 실행하고,
 끝나면 나한테 /reload-plugins 를 실행하라고 안내해줘.
 ```
 
 **방법 3 — 슬래시 명령으로 직접:**
 
 ```
-/plugin marketplace add callmejustdodo/claude-interpreter
-/plugin install claude-interpreter@claude-interpreter
+/plugin marketplace add callmejustdodo/tongyeok
+/plugin install tongyeok@tongyeok
 ```
 
 어느 방법이든 설치 후 `/reload-plugins`(또는 새 세션)부터 적용된다.
-업데이트는 `/plugin marketplace update claude-interpreter`.
+업데이트는 `/plugin marketplace update tongyeok`.
 
 **요구사항**: `python3`, `claude` CLI. 자동 재입력은 cmux/tmux 안이거나 macOS(osascript)여야 한다. 그 외 Linux 환경은 최신 커널에서 TIOCSTI가 기본 비활성이라 tmux 사용을 권장한다.
 
 ### 제거
 
 ```
-/plugin uninstall claude-interpreter@claude-interpreter
-/plugin marketplace remove claude-interpreter
+/plugin uninstall tongyeok@tongyeok
+/plugin marketplace remove tongyeok
 ```
 
 ### 로컬 개발
 
 ```bash
-claude --plugin-dir /path/to/claude-interpreter
+claude --plugin-dir /path/to/tongyeok
 ```
 
 플러그인 파일 수정 후에는 세션 안에서 `/reload-plugins`.
@@ -104,8 +104,8 @@ Claude가 영어로 작업/답변
 
 | 변수 | 기본값 | 설명 |
 | --- | --- | --- |
-| `CLAUDE_INTERPRETER_MODE` | `replace` | `replace`: block + 영어 재입력(한국어가 컨텍스트에 안 남음). `context`: 한국어 프롬프트를 유지하고 영어 번역을 additionalContext로 주입(주입 해킹 없음, 대신 한국어가 컨텍스트에 남음) |
-| `CLAUDE_INTERPRETER_MODEL` | `claude-haiku-4-5-20251001` | 번역에 사용할 모델 |
+| `TONGYEOK_MODE` | `replace` | `replace`: block + 영어 재입력(한국어가 컨텍스트에 안 남음). `context`: 한국어 프롬프트를 유지하고 영어 번역을 additionalContext로 주입(주입 해킹 없음, 대신 한국어가 컨텍스트에 남음) |
+| `TONGYEOK_MODEL` | `claude-haiku-4-5-20251001` | 번역에 사용할 모델 |
 
 ## 알아둘 것
 
@@ -113,13 +113,13 @@ Claude가 영어로 작업/답변
 - 번역은 `claude -p`(Haiku) 호출이라 프롬프트 제출/턴 종료 시 몇 초의 지연이 생긴다.
 - 번역 실패 시 fail-open: 한국어 프롬프트가 그대로 전달된다 (Claude는 한국어도 이해하므로 메시지 유실보다 낫다).
 - 답변이 이미 한국어(한글 비율 30% 초과)면 출력 번역은 생략된다.
-- 훅 안에서 부르는 `claude -p`는 `CLAUDE_INTERPRETER_ACTIVE=1` 가드 + `disableAllHooks` 설정으로 재귀를 차단한다.
-- 세션 상태는 `$TMPDIR/claude-interpreter/<session_id>.*` 파일로 관리된다.
+- 훅 안에서 부르는 `claude -p`는 `TONGYEOK_ACTIVE=1` 가드 + `disableAllHooks` 설정으로 재귀를 차단한다.
+- 세션 상태는 `$TMPDIR/tongyeok/<session_id>.*` 파일로 관리된다.
 
 ## 구조
 
 ```
-claude-interpreter/
+tongyeok/
 ├── .claude-plugin/
 │   ├── plugin.json                 # 플러그인 매니페스트
 │   └── marketplace.json            # 단일 리포 마켓플레이스 (source: "./")

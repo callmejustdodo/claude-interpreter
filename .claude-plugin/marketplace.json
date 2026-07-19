@@ -1,12 +1,12 @@
 {
-  "name": "claude-interpreter",
+  "name": "tongyeok",
   "owner": {
     "name": "Dohyeon Park"
   },
   "description": "Korean <-> English interpreter layer for Claude Code",
   "plugins": [
     {
-      "name": "claude-interpreter",
+      "name": "tongyeok",
       "source": "./",
       "description": "Type in Korean, Claude works in English, answers come back in Korean. Korean prompts are translated and re-submitted so Korean never enters the model context.",
       "author": {

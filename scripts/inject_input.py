@@ -37,12 +37,12 @@ def inject_cmux(text):
 def inject_tmux(text):
     pane = os.environ["TMUX_PANE"]
     subprocess.run(
-        ["tmux", "load-buffer", "-b", "claude-interpreter", "-"],
+        ["tmux", "load-buffer", "-b", "tongyeok", "-"],
         input=text.encode("utf-8"),
         check=True,
     )
     subprocess.run(
-        ["tmux", "paste-buffer", "-p", "-d", "-b", "claude-interpreter", "-t", pane],
+        ["tmux", "paste-buffer", "-p", "-d", "-b", "tongyeok", "-t", pane],
         check=True,
     )
     subprocess.run(["tmux", "send-keys", "-t", pane, "Enter"], check=True)

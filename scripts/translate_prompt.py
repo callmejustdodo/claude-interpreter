@@ -10,7 +10,7 @@ Default ("replace" mode) flow:
    resort). The re-submitted English prompt matches the pending file and
    passes straight through.
 
-"context" mode (CLAUDE_INTERPRETER_MODE=context) instead lets the Korean
+"context" mode (TONGYEOK_MODE=context) instead lets the Korean
 prompt through and attaches the English translation as additionalContext.
 """
 
@@ -103,7 +103,7 @@ def main():
 
     if ic.MODE == "context":
         context = (
-            "[claude-interpreter] The user's prompt above was written in "
+            "[tongyeok] The user's prompt above was written in "
             "Korean. English translation:\n\n<english_translation>\n"
             + translation
             + "\n</english_translation>\n\n"
