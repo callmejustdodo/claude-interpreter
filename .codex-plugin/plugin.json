@@ -1,0 +1,10 @@
+{
+  "name": "tongyeok",
+  "version": "0.1.0",
+  "description": "Korean <-> English interpreter layer: translates Korean prompts to English on the way in, and translates English responses back to Korean on the way out.",
+  "author": "Dohyeon Park",
+  "license": "MIT",
+  "repository": "https://github.com/callmejustdodo/tongyeok",
+  "keywords": ["korean", "translation", "hooks", "i18n"],
+  "hooks": "./hooks/hooks.json"
+}

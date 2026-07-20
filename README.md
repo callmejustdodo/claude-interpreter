@@ -10,6 +10,8 @@
 
 ## 설치
 
+### Claude Code
+
 ```bash
 claude plugin marketplace add callmejustdodo/tongyeok
 claude plugin install tongyeok@tongyeok
@@ -18,6 +20,17 @@ claude plugin install tongyeok@tongyeok
 설치 후 `/reload-plugins`. 그다음부터 한국어로 쓰면 됩니다.
 
 끄기: `/plugin` → tongyeok → Disable. 또는 `claude plugin disable tongyeok@tongyeok`.
+
+### Codex
+
+```bash
+codex plugin marketplace add callmejustdodo/tongyeok --ref main
+codex plugin add tongyeok@tongyeok
+```
+
+Codex는 훅을 **신뢰해야 실행**합니다. 설치 후 세션에서 `/hooks`를 열면 `UserPromptSubmit`과 `Stop`이 "need review"로 잡혀 있는데, `t`를 눌러 신뢰하면 활성화됩니다. `config.toml`에 `[features] hooks = true`도 필요합니다.
+
+끄기: `codex plugin remove tongyeok`.
 
 ## 무엇을 하나
 
@@ -81,7 +94,8 @@ Claude Code 훅에는 프롬프트를 교체하는 API가 없습니다. 대신 *
 | 변수 | 기본값 | 설명 |
 | --- | --- | --- |
 | `TONGYEOK_MODE` | `replace` | `replace`: block 후 영어 재입력. `context`: 한국어를 두고 영어 번역을 additionalContext로 첨부 (주입 없음, 대신 한국어가 컨텍스트에 남음) |
-| `TONGYEOK_MODEL` | `claude-haiku-4-5-20251001` | 번역 모델 |
+| `TONGYEOK_BACKEND` | `auto` | 번역에 쓸 CLI. `auto`는 `claude` 우선, 없으면 `codex` |
+| `TONGYEOK_MODEL` | `claude-haiku-4-5-20251001` | 번역 모델 (claude 백엔드 전용) |
 
 세션 하나만 통역 없이 쓰려면 `TONGYEOK_ACTIVE=1 claude`.
 
@@ -93,7 +107,7 @@ Claude Code 훅에는 프롬프트를 교체하는 API가 없습니다. 대신 *
 4. 답변이 이미 한국어면(한글 30% 초과) 출력 번역은 건너뜁니다.
 5. 훅 안의 `claude -p`는 가드 + `disableAllHooks`로 재귀를 막습니다.
 
-**요구사항**: `python3`, `claude` CLI. 자동 재입력은 cmux/tmux 안이거나 macOS. 그 외 Linux는 최신 커널에서 TIOCSTI가 막혀 있어 tmux를 권합니다.
+**요구사항**: `python3`, 그리고 `claude` 또는 `codex` CLI 중 하나(번역에 씀). 자동 재입력은 cmux/tmux 안이거나 macOS. 그 외 Linux는 최신 커널에서 TIOCSTI가 막혀 있어 tmux를 권합니다.
 
 ## 고치기
 
@@ -106,8 +120,10 @@ claude --plugin-dir ./tongyeok
 
 ```
 tongyeok/
-├── .claude-plugin/        # plugin.json, marketplace.json
-├── hooks/hooks.json       # UserPromptSubmit + Stop
+├── .claude-plugin/        # Claude Code: plugin.json, marketplace.json
+├── .codex-plugin/         # Codex: plugin.json
+├── .agents/plugins/       # Codex: marketplace.json
+├── hooks/hooks.json       # UserPromptSubmit + Stop (양쪽 공용)
 └── scripts/
     ├── interpreter_common.py   # 번역, 한글 감지, 세션 상태
     ├── translate_prompt.py     # 한→영, block, 재입력

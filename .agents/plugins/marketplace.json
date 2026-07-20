@@ -1,0 +1,16 @@
+{
+  "name": "tongyeok",
+  "interface": {
+    "displayName": "tongyeok"
+  },
+  "plugins": [
+    {
+      "name": "tongyeok",
+      "description": "Type in Korean, the agent works in English, answers come back in Korean. Korean prompts are translated and re-submitted so Korean never enters the model context.",
+      "source": {
+        "source": "local",
+        "path": "./"
+      }
+    }
+  ]
+}

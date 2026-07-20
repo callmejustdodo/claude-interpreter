@@ -2,12 +2,18 @@
 
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 
-# Set on child `claude -p` calls so our own hooks never fire recursively.
+# Set on child CLI calls so our own hooks never fire recursively.
 GUARD_ENV = "TONGYEOK_ACTIVE"
 
+# Translation backend: "claude", "codex", or "auto" (prefer whichever CLI
+# exists, claude first). Codex users often don't have the claude CLI.
+BACKEND = os.environ.get("TONGYEOK_BACKEND", "auto")
+
+# Only meaningful for the claude backend; codex uses its configured model.
 MODEL = os.environ.get("TONGYEOK_MODEL", "claude-haiku-4-5-20251001")
 
 # "replace": block the Korean prompt (erasing it from context) and re-inject
@@ -55,32 +61,74 @@ def korean_ratio(text):
     return hangul / len(letters)
 
 
-def translate(text, instruction, timeout=90):
-    """Translate via `claude -p` on a small model. Returns None on failure."""
-    text = text[:MAX_CHARS]
-    env = dict(os.environ)
-    env[GUARD_ENV] = "1"
+def pick_backend():
+    if BACKEND != "auto":
+        return BACKEND
+    if shutil.which("claude"):
+        return "claude"
+    if shutil.which("codex"):
+        return "codex"
+    return None
+
+
+def _translate_claude(prompt, env, timeout):
+    result = subprocess.run(
+        [
+            "claude",
+            "-p",
+            prompt,
+            "--model",
+            MODEL,
+            "--settings",
+            '{"disableAllHooks": true}',
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=timeout,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip()
+
+
+def _translate_codex(prompt, env, timeout):
+    """Codex prints progress chrome to stdout, so read the answer from the
+    file written by --output-last-message instead."""
+    fd, path = tempfile.mkstemp(prefix="tongyeok-", suffix=".txt")
+    os.close(fd)
     try:
         result = subprocess.run(
-            [
-                "claude",
-                "-p",
-                instruction + text,
-                "--model",
-                MODEL,
-                "--settings",
-                '{"disableAllHooks": true}',
-            ],
+            ["codex", "exec", "--skip-git-repo-check", "-o", path, prompt],
             capture_output=True,
             text=True,
             env=env,
             timeout=timeout,
         )
+        if result.returncode != 0:
+            return None
+        with open(path, encoding="utf-8") as f:
+            return f.read().strip()
+    finally:
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
+
+def translate(text, instruction, timeout=90):
+    """Translate with the available CLI. Returns None on failure."""
+    backend = pick_backend()
+    if backend is None:
+        return None
+    env = dict(os.environ)
+    env[GUARD_ENV] = "1"
+    prompt = instruction + text[:MAX_CHARS]
+    runner = _translate_claude if backend == "claude" else _translate_codex
+    try:
+        out = runner(prompt, env, timeout)
     except (OSError, subprocess.TimeoutExpired):
         return None
-    if result.returncode != 0:
-        return None
-    out = result.stdout.strip()
     return out or None
 
 
