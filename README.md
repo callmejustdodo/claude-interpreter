@@ -2,7 +2,7 @@
   <strong>tongyeok 통역</strong>
 </p>
 <p align="center">
-  한국어로 쓰세요. Claude는 영어로 일합니다. 답은 한국어로 돌아옵니다.
+  한국어로 쓰세요. 에이전트는 영어로 일합니다. 답은 한국어로 돌아옵니다.
 </p>
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/callmejustdodo/tongyeok?style=flat" alt="License"></a>
@@ -34,7 +34,7 @@ Codex는 훅을 **신뢰해야 실행**합니다. 설치 후 세션에서 `/hook
 
 ## 무엇을 하나
 
-한국어 프롬프트를 영어로 번역해 대신 제출합니다. 한국어 원문은 모델 컨텍스트에 남지 않습니다. 답변은 한국어로 번역해 보여줍니다.
+한국어 프롬프트를 영어로 번역해 대신 제출합니다. 한국어 원문은 모델 컨텍스트에 남지 않습니다. 답변은 한국어로 번역해 보여줍니다. Claude Code와 Codex 양쪽에서 동작합니다.
 
 ## 무엇이 달라지나
 
@@ -78,16 +78,18 @@ Codex는 훅을 **신뢰해야 실행**합니다. 설치 후 세션에서 `/hook
 
 ## 어떻게 동작하나
 
-Claude Code 훅에는 프롬프트를 교체하는 API가 없습니다. 대신 **block된 프롬프트는 컨텍스트에서 지워진다**는 동작을 씁니다.
+훅에는 프롬프트를 교체하는 API가 없습니다. 대신 **block된 프롬프트는 모델에 가지 않는다**는 동작을 씁니다.
 
 1. UserPromptSubmit 훅이 한글을 감지한다.
-2. Haiku(`claude -p`)가 영어로 번역한다.
-3. 한국어 프롬프트를 block한다 — 컨텍스트에서 사라진다.
+2. 번역용 CLI(`claude -p` 또는 `codex exec`)가 영어로 번역한다.
+3. 한국어 프롬프트를 block한다 — 컨텍스트에 남지 않는다.
 4. 백그라운드 프로세스가 영어 번역문을 입력창에 타이핑하고 제출한다.
 5. 재제출된 영어는 훅이 알아보고 통과시킨다.
 6. Stop 훅이 영어 답변을 한국어로 번역해 보여준다.
 
-자동 재입력은 환경에 따라 순서대로 시도합니다. cmux → tmux → TIOCSTI → osascript(macOS) → 클립보드 안내.
+자동 재입력은 환경에 따라 순서대로 시도합니다. cmux → tmux → TIOCSTI → osascript(macOS) → 클립보드 안내. 터미널 레벨에서 동작하므로 Claude Code든 Codex든 똑같이 작동합니다.
+
+Claude Code와 Codex는 훅 이벤트 이름(`UserPromptSubmit`/`Stop`), stdin 스키마, `decision: "block"`이 같고 Codex가 `CLAUDE_PLUGIN_ROOT`를 하위 호환으로 지원합니다. 그래서 `hooks/hooks.json` 하나를 양쪽이 공유합니다.
 
 ## 설정
 
@@ -97,15 +99,15 @@ Claude Code 훅에는 프롬프트를 교체하는 API가 없습니다. 대신 *
 | `TONGYEOK_BACKEND` | `auto` | 번역에 쓸 CLI. `auto`는 `claude` 우선, 없으면 `codex` |
 | `TONGYEOK_MODEL` | `claude-haiku-4-5-20251001` | 번역 모델 (claude 백엔드 전용) |
 
-세션 하나만 통역 없이 쓰려면 `TONGYEOK_ACTIVE=1 claude`.
+세션 하나만 통역 없이 쓰려면 `TONGYEOK_ACTIVE=1 claude` (또는 `TONGYEOK_ACTIVE=1 codex`).
 
 ## 알아둘 것
 
 1. 슬래시 명령과 영어 프롬프트는 건드리지 않습니다.
-2. 번역마다 `claude -p` 호출이라 제출·턴 종료 시 몇 초 걸립니다.
+2. 번역마다 CLI를 한 번 호출하므로 제출·턴 종료 시 몇 초 걸립니다.
 3. 번역 실패 시 fail-open — 한국어가 그대로 전달됩니다. 메시지는 유실되지 않습니다.
 4. 답변이 이미 한국어면(한글 30% 초과) 출력 번역은 건너뜁니다.
-5. 훅 안의 `claude -p`는 가드 + `disableAllHooks`로 재귀를 막습니다.
+5. 번역용 CLI 호출은 `TONGYEOK_ACTIVE` 가드로 재귀를 막습니다.
 
 **요구사항**: `python3`, 그리고 `claude` 또는 `codex` CLI 중 하나(번역에 씀). 자동 재입력은 cmux/tmux 안이거나 macOS. 그 외 Linux는 최신 커널에서 TIOCSTI가 막혀 있어 tmux를 권합니다.
 
@@ -116,7 +118,7 @@ git clone https://github.com/callmejustdodo/tongyeok
 claude --plugin-dir ./tongyeok
 ```
 
-`scripts/` 안의 훅을 고치고 `/reload-plugins`.
+`scripts/` 안의 훅을 고치고 `/reload-plugins`. Codex로 테스트하려면 마켓플레이스를 로컬 경로로 추가하면 됩니다 (`codex plugin marketplace add ./tongyeok`).
 
 ```
 tongyeok/
